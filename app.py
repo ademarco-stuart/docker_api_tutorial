@@ -1,9 +1,9 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, abort
 import json
 import os
 app = Flask(__name__)
 
-USERNAME = "<INSERT YOUR NAME HERE>"
+USERNAME = "ANDREA DE MARCO"
 
 @app.route('/', methods=['GET'])
 def home():
@@ -11,15 +11,32 @@ def home():
     return 'R&I 6'
 
 @app.route('/posts', methods=['GET'], defaults={'postid': None})
-@app.route('/posts/<postid>', methods=['GET'])
+@app.route('/posts/<int:postid>', methods=['GET'])
 def query_posts(postid):
     filename = os.path.join(app.static_folder, 'posts.json')
     with open(filename) as f:
         records = json.load(f)
     if postid:
-        "Insert your code here"
+        for item in records:
+            if item['id'] == postid:
+                return jsonify(item)
+        abort(404)
     else:
-        "Insert your code here"
+        return jsonify(records)
+
+@app.route('/users', methods=['GET'], defaults={'id': None})
+@app.route('/users/<int:id>', methods=['GET'])
+def query_users(id):
+    filename = os.path.join(app.static_folder, 'users.json')
+    with open(filename) as f:
+        records = json.load(f)
+    if id:
+        for item in records:
+            if item['id'] == id:
+                return jsonify(item)
+        abort(404)
+    else:
+        return jsonify(records)
 
 ## ADD COMMENTS AND USERS METHODS HERE
 
