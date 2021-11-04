@@ -4,14 +4,16 @@ import os
 app = Flask(__name__)
 
 USERNAME = "ANDREA DE MARCO"
+VERSION = 3
 
 @app.route('/', methods=['GET'])
 def home():
     #Return simple string for home page
-    return 'R&I 6'
+    return f'R&I 6: {USERNAME}, V{VERSION}'
 
 @app.route('/posts', methods=['GET'], defaults={'postid': None})
 @app.route('/posts/<int:postid>', methods=['GET'])
+@app.route('/users/<int:postid>/posts', methods=['GET'])
 def query_posts(postid):
     filename = os.path.join(app.static_folder, 'posts.json')
     with open(filename) as f:
@@ -38,7 +40,20 @@ def query_users(id):
     else:
         return jsonify(records)
 
-## ADD COMMENTS AND USERS METHODS HERE
+@app.route('/comments', methods=['GET'], defaults={'postid': None})
+@app.route('/comments/<int:postid>', methods=['GET'])
+@app.route('/posts/<int:postid>/comments', methods=['GET'])
+def query_comments(postid):
+    filename = os.path.join(app.static_folder, 'comments.json')
+    with open(filename) as f:
+        records = json.load(f)
+    if postid:
+        for item in records:
+            if item['id'] == postid:
+                return jsonify(item)
+        abort(404)
+    else:
+        return jsonify(records)
 
 if __name__ == '__main__':
     #Run app on port 5000 in debug mode. Host is specified as Flask needs you to give a host for apps that would
